@@ -4,62 +4,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="E-Report Enterprise — Platform Pengaduan & Manajemen Sarana Digital Pro">
+    <meta name="theme-color" content="#070b19">
 
-    <meta name="description"
-        content="E-Report — Sistem Pengaduan Digital Sarana dan Prasarana Modern">
+    <title>E-Report Enterprise | Animated Responsive Suite</title>
 
-    <meta name="theme-color" content="#2563eb">
-
-    <title>E-Report | Pengaduan Digital Premium</title>
-
-    <!-- Google Font -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- CSS -->
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- CSS Eksternal -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
 <body>
 
 <!-- =====================================================
-     DYNAMIC ISLAND / LIVE NOTIFIER
+     DYNAMIC ISLAND TELEMETRY
 ===================================================== -->
-<div id="dynamicIsland" class="dynamic-island" onclick="this.classList.toggle('expanded')">
+<div id="dynamicIsland" class="dynamic-island" role="status" aria-live="polite">
     <span class="island-dot"></span>
-    <span id="islandText" class="island-text">E-Report System Ready</span>
+    <span id="islandText" class="island-text">System Core v4.0 Active</span>
     <span class="island-badge">LIVE</span>
 </div>
 
 
 <!-- =====================================================
-     FLOATING PILL NAVBAR
+     FLOATING GLASS NAVBAR
 ===================================================== -->
 <header class="navbar">
     <div class="brand">
         <div class="logo">
-            <span>ER</span>
+            <i data-lucide="command"></i>
         </div>
         <div class="brand-info">
             <h2>E-Report</h2>
-            <span>Enterprise Suite</span>
+            <span>PRO SUITE</span>
         </div>
     </div>
 
-    <nav class="nav-menu">
+    <nav class="nav-menu" aria-label="Navigasi Utama">
         <button id="btnNavHome" class="nav-btn active" type="button">
-            <span class="nav-icon">🏠</span>
-            <span>Beranda</span>
+            <i data-lucide="layout-dashboard" class="nav-icon"></i>
+            <span>Dasbor</span>
         </button>
 
         <button id="btnNavGuide" class="nav-btn" type="button">
-            <span class="nav-icon">📖</span>
+            <i data-lucide="book-open-check" class="nav-icon"></i>
             <span>Panduan</span>
         </button>
 
-        <button id="btnDarkMode" class="theme-btn" type="button" aria-label="Toggle Dark Mode">
-            🌙
+        <div class="nav-divider"></div>
+
+        <button id="btnDarkMode" class="theme-btn" type="button" aria-label="Ganti Tema" title="Ganti Tema">
+            <i data-lucide="sun" id="themeIcon"></i>
         </button>
     </nav>
 </header>
@@ -71,139 +76,145 @@
 <main class="container">
 
 <!-- =====================================================
-     HOME PAGE
+     HOME DASHBOARD SECTION
 ===================================================== -->
 <section id="pageHome" class="section active">
 
-    <!-- HERO SECTION -->
-    <div class="hero">
+    <!-- HERO BANNER -->
+    <div class="hero reveal-element">
         <div class="hero-content">
             <div class="status">
                 <span class="status-dot"></span>
-                <span>Layanan Real-time Aktif</span>
+                <span>Infrastruktur Aktif • SLA 99.9%</span>
             </div>
 
             <h1>
-                Sampaikan Pengaduan
-                <span>Dengan Kecepatan Maksimal</span>
+                Pusat Pengaduan
+                <span>Digital Berkecepatan Tinggi</span>
             </h1>
 
             <p>
-                Laporkan kendala sarana & prasarana instansi secara transparan, akurat, dan terpantau langsung melalui dasbor digital terintegrasi.
+                Sampaikan kendala fasilitas & IT instansi secara akurat. Sistem otomatis merutekan tiket langsung ke tim teknis terkait.
             </p>
 
             <div class="hero-actions">
-                <a href="#reportCardForm" class="hero-btn">
-                    <span>⚡</span>
-                    Buat Laporan Sekarang
-                </a>
+                <button type="button" id="btnScrollForm" class="hero-btn">
+                    <i data-lucide="plus-circle"></i>
+                    <span>Buat Tiket Baru</span>
+                </button>
+                <button type="button" id="btnScrollStats" class="hero-btn-outline">
+                    <i data-lucide="bar-chart-2"></i>
+                    <span>Lihat Monitoring</span>
+                </button>
             </div>
 
             <div class="hero-info">
-                <span>⚡ Respon Cepat</span>
-                <span>🔒 Data Terenkripsi</span>
-                <span>📈 Pantau Live</span>
+                <span><i data-lucide="zap"></i> Respon Cepat</span>
+                <span><i data-lucide="shield-check"></i> Enkripsi Aman</span>
+                <span><i data-lucide="activity"></i> Pantau Live</span>
             </div>
         </div>
 
         <div class="hero-visual">
             <div class="hero-icon">
-                🚀
+                <i data-lucide="cpu"></i>
             </div>
             <div class="floating-card card-one">
-                <span>📋</span>
+                <div class="fc-icon blue"><i data-lucide="shield"></i></div>
                 <div>
-                    <strong>Laporan Masuk</strong>
-                    <small>Terkirim otomatis</small>
+                    <strong>Auto-Routing</strong>
+                    <small>Terkirim ke teknisi spesifik</small>
                 </div>
             </div>
             <div class="floating-card card-two">
-                <span>✨</span>
+                <div class="fc-icon emerald"><i data-lucide="check-circle-2"></i></div>
                 <div>
-                    <strong>Status Live</strong>
-                    <small>100% Transparan</small>
+                    <strong>Live Telemetry</strong>
+                    <small>Transparansi penuh</small>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <!-- STATISTICS BENTO GRID -->
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-icon blue">📋</div>
+    <!-- BENTO GRID STATS -->
+    <div class="stats reveal-element">
+        <div class="stat-card" data-filter="Semua" title="Tampilkan Semua Tiket">
+            <div class="stat-icon blue"><i data-lucide="layers"></i></div>
             <div>
-                <span>Total Laporan</span>
+                <span>Total Tiket</span>
                 <h2 id="totalCount">0</h2>
-                <small>Semua riwayat</small>
+                <small>Klik untuk semua</small>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon orange">⏳</div>
+        <div class="stat-card" data-filter="Menunggu" title="Filter Status Menunggu">
+            <div class="stat-icon orange"><i data-lucide="clock"></i></div>
             <div>
                 <span>Menunggu</span>
                 <h2 id="waitCount">0</h2>
-                <small>Antrean tindakan</small>
+                <small>Klik untuk filter</small>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon purple">⚙️</div>
+        <div class="stat-card" data-filter="Diproses" title="Filter Status Diproses">
+            <div class="stat-icon purple"><i data-lucide="wrench"></i></div>
             <div>
                 <span>Diproses</span>
                 <h2 id="procCount">0</h2>
-                <small>Dalam penanganan</small>
+                <small>Klik untuk filter</small>
             </div>
         </div>
 
-        <div class="stat-card">
-            <div class="stat-icon green">✓</div>
+        <div class="stat-card" data-filter="Selesai" title="Filter Status Selesai">
+            <div class="stat-icon green"><i data-lucide="check-circle"></i></div>
             <div>
                 <span>Selesai</span>
                 <h2 id="doneCount">0</h2>
-                <small>Tuntas dikerjakan</small>
+                <small>Klik untuk filter</small>
             </div>
         </div>
     </div>
 
 
     <!-- NOTIFICATION ALERT -->
-    <div id="notifBox" class="notification"></div>
+    <div id="notifBox" class="notification" role="alert"></div>
 
 
     <!-- REPORT FORM CARD -->
-    <div id="reportCardForm" class="content-card">
+    <div id="reportCardForm" class="content-card reveal-element">
         <div class="section-title">
             <div>
-                <span class="small-title">FORMULIR PENGADUAN</span>
-                <h2>Buat Laporan Baru</h2>
-                <p>Lengkapi detail di bawah ini agar laporan dapat segera divalidasi tim teknis.</p>
+                <span class="small-title">TICKET SUBMISSION</span>
+                <h2>Formulir Pengaduan Kendala</h2>
+                <p>Lengkapi parameter di bawah ini agar laporan segera divalidasi sistem.</p>
             </div>
-            <div class="section-badge">● Sistem Secure</div>
+            <div class="section-badge">
+                <i data-lucide="lock"></i> Secure SSL
+            </div>
         </div>
 
         <form id="reportForm">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="pelapor">Nama Pelapor</label>
+                    <label for="pelapor">Nama Pelapor & Unit</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
-                        <input type="text" id="pelapor" placeholder="Masukkan nama lengkap Anda" autocomplete="name" required>
+                        <i data-lucide="user" class="input-icon"></i>
+                        <input type="text" id="pelapor" placeholder="Contoh: Budi Santoso (Divisi IT)" autocomplete="name" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="kategori">Kategori Kendala</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">🏷️</span>
+                        <i data-lucide="tag" class="input-icon"></i>
                         <select id="kategori" required>
-                            <option value="">Pilih Kategori Kendala</option>
-                            <option value="Internet">🌐 Internet & Jaringan</option>
-                            <option value="Fasilitas">🏢 Fasilitas & Ruangan</option>
-                            <option value="Kebersihan">🧹 Kebersihan & Sanitasi</option>
-                            <option value="Keamanan">🛡️ Keamanan & Akses</option>
-                            <option value="Lainnya">📌 Lainnya</option>
+                            <option value="">Pilih Kategori Kendala...</option>
+                            <option value="Internet">Internet & Jaringan</option>
+                            <option value="Fasilitas">Fasilitas & Ruangan</option>
+                            <option value="Kebersihan">Kebersihan & Sanitasi</option>
+                            <option value="Keamanan">Keamanan & Akses</option>
+                            <option value="Lainnya">Lainnya</option>
                         </select>
                     </div>
                 </div>
@@ -211,79 +222,116 @@
                 <div class="form-group">
                     <label for="lokasi">Lokasi Kejadian</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">📍</span>
-                        <input type="text" id="lokasi" placeholder="Contoh: Gedung A Lantai 3" required>
+                        <i data-lucide="map-pin" class="input-icon"></i>
+                        <input type="text" id="lokasi" placeholder="Contoh: Gedung Utama Lantai 3" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="judul">Judul Laporan</label>
+                    <label for="urgensi">Tingkat Urgensi</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">📝</span>
-                        <input type="text" id="judul" placeholder="Contoh: AC Ruang Meeting Bocor" required>
+                        <i data-lucide="alert-triangle" class="input-icon"></i>
+                        <select id="urgensi" required>
+                            <option value="Normal">Normal (Standar Operasional)</option>
+                            <option value="Tinggi">Tinggi (Mengganggu Aktivitas)</option>
+                            <option value="Kritis">Kritis (Darurat / Berhenti Total)</option>
+                        </select>
                     </div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="judul">Subjek Laporan</label>
+                <div class="input-wrapper">
+                    <i data-lucide="file-text" class="input-icon"></i>
+                    <input type="text" id="judul" placeholder="Contoh: AC Ruang Meeting Utama Tidak Dingin" required>
                 </div>
             </div>
 
             <div class="form-group">
                 <div class="label-row">
                     <label for="deskripsi">Deskripsi Detail Masalah</label>
-                    <span class="required-info">Wajib diisi</span>
+                    <span class="required-info">* Minimal 10 karakter</span>
                 </div>
 
                 <div class="textarea-wrapper">
-                    <span class="textarea-icon">💬</span>
-                    <textarea id="deskripsi" rows="5" placeholder="Jelaskan kronologi dan detail kendala secara spesifik..." required></textarea>
+                    <i data-lucide="align-left" class="textarea-icon"></i>
+                    <textarea id="deskripsi" rows="4" minlength="10" placeholder="Jelaskan kronologi dan dampak kendala secara spesifik..." required></textarea>
                 </div>
 
                 <div class="textarea-bottom">
-                    <span>Tips: Berikan detail yang jelas untuk mempercepat proses perbaikan.</span>
+                    <span>Tips: Berikan detail akurat untuk mempercepat perbaikan.</span>
                     <div id="charCounter" class="char-counter">0 karakter</div>
                 </div>
             </div>
 
-            <button type="submit" class="btn-submit">
-                <span>🚀 Kirim Laporan Sekarang</span>
+            <button type="submit" id="btnSubmitForm" class="btn-submit">
+                <i data-lucide="send"></i>
+                <span>Kirim Tiket Pengaduan</span>
                 <span class="button-arrow">→</span>
             </button>
         </form>
     </div>
 
 
-    <!-- REPORT DATA MANAGEMENT CARD -->
-    <div class="content-card">
+    <!-- ANALYTICS CHART CARD -->
+    <div class="content-card reveal-element">
         <div class="section-title">
             <div>
-                <span class="small-title">MONITORING</span>
-                <h2>Daftar Pengaduan Aktif</h2>
-                <p>Cari, filter, dan kelola status pengaduan secara transparan.</p>
+                <span class="small-title">ANALYTICS ENGINE</span>
+                <h2>Statistik Grafik Kategori</h2>
+                <p>Visualisasi persebaran kendala infrastruktur secara real-time.</p>
             </div>
-            <div class="section-badge">● Live Sync</div>
+            <button type="button" id="btnToggleChartType" class="secondary-btn">
+                <i data-lucide="refresh-cw"></i> Ganti Model Grafik
+            </button>
+        </div>
+        <div class="chart-container">
+            <canvas id="reportChart"></canvas>
+        </div>
+    </div>
+
+
+    <!-- MONITORING TABLE CARD -->
+    <div id="monitoringSection" class="content-card reveal-element">
+        <div class="section-title">
+            <div>
+                <span class="small-title">LIVE MONITORING</span>
+                <h2>Daftar Pengaduan Aktif</h2>
+                <p>Klik baris atau tombol aksi untuk melihat detail, mengubah status, atau menghapus.</p>
+            </div>
+            <div class="section-badge">● Sinkronisasi Aktif</div>
         </div>
 
         <div class="toolbar">
             <div class="search-wrapper">
-                <span>🔎</span>
-                <input type="text" id="searchBox" placeholder="Cari judul laporan atau nama pelapor...">
+                <i data-lucide="search"></i>
+                <input type="text" id="searchBox" placeholder="Cari ID, judul, lokasi, atau pelapor...">
             </div>
 
             <div class="filter-wrapper">
-                <span>⚡</span>
+                <i data-lucide="filter"></i>
                 <select id="statusFilter">
                     <option value="Semua">Semua Status</option>
-                    <option value="Menunggu">⏳ Menunggu</option>
-                    <option value="Diproses">⚙️ Diproses</option>
-                    <option value="Selesai">✓ Selesai</option>
+                    <option value="Menunggu">Menunggu</option>
+                    <option value="Diproses">Diproses</option>
+                    <option value="Selesai">Selesai</option>
                 </select>
             </div>
         </div>
 
         <div class="action-toolbar">
+            <button id="btnExportCSV" class="secondary-btn" type="button">
+                <i data-lucide="file-spreadsheet"></i> Unduh CSV
+            </button>
+            <button id="btnPrintPDF" class="secondary-btn" type="button">
+                <i data-lucide="printer"></i> Cetak / PDF
+            </button>
             <button id="btnDeleteLast" class="secondary-btn" type="button">
-                ↩ Hapus Laporan Terakhir
+                <i data-lucide="undo-2"></i> Batalkan Terakhir
             </button>
             <button id="btnClearDone" class="danger-btn" type="button">
-                🗑 Bersihkan Status Selesai
+                <i data-lucide="trash-2"></i> Bersihkan Selesai
             </button>
         </div>
 
@@ -291,8 +339,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Laporan & Kategori</th>
+                        <th>ID Tiket</th>
+                        <th>Detail Laporan & Urgensi</th>
                         <th>Pelapor & Lokasi</th>
                         <th>Status</th>
                         <th>Aksi</th>
@@ -309,43 +357,47 @@
 
 
 <!-- =====================================================
-     GUIDE PAGE
+     GUIDE SECTION
 ===================================================== -->
 <section id="pageGuide" class="section">
-    <div class="guide-header">
+    <div class="guide-header reveal-element">
         <div class="guide-header-content">
-            <span class="small-title">PUSAT BANTUAN</span>
+            <span class="small-title">STANDARD OPERATING PROCEDURE</span>
             <h1>Panduan Penggunaan E-Report</h1>
-            <p>Ikuti 3 langkah mudah untuk mengajukan pengaduan fasilitas instansi Anda.</p>
+            <p>Alur penanganan kendala fasilitas untuk memastikan tingkat SLA terpenuhi.</p>
         </div>
-        <div class="guide-icon">📖</div>
+        <div class="guide-icon">
+            <i data-lucide="book-marked"></i>
+        </div>
     </div>
 
-    <div class="guide-grid">
+    <div class="guide-grid reveal-element">
         <div class="guide-card">
             <div class="step">01</div>
-            <h3>Lengkapi Formulir</h3>
-            <p>Masukkan identitas pelapor, pilih kategori kendala, serta tentukan lokasi spesifik tempat terjadinya masalah.</p>
+            <h3>Kirim Formulir</h3>
+            <p>Masukkan identitas, pilih kategori, tentukan tingkat urgensi, serta lokasi spesifik terjadinya kendala.</p>
         </div>
 
         <div class="guide-card">
             <div class="step">02</div>
-            <h3>Kirim Laporan</h3>
-            <p>Tuliskan judul ringkas beserta deskripsi detail, lalu tekan tombol kirim untuk memasukkan laporan ke sistem.</p>
+            <h3>Verifikasi & Eskalasi</h3>
+            <p>Sistem memproses tiket secara otomatis dan meneruskannya ke teknisi lapangan terkait untuk segera ditangani.</p>
         </div>
 
         <div class="guide-card">
             <div class="step">03</div>
-            <h3>Pantau Progres</h3>
-            <p>Cek perkembangan penanganan secara real-time melalui tabel status mulai dari Menunggu, Diproses, hingga Selesai.</p>
+            <h3>Penyelesaian Selesai</h3>
+            <p>Status tiket diperbarui menjadi selesai setelah perbaikan tuntas dan diverifikasi oleh sistem pelaporan.</p>
         </div>
     </div>
 
-    <div class="guide-info">
-        <div class="guide-info-icon">💡</div>
+    <div class="guide-info reveal-element">
+        <div class="guide-info-icon">
+            <i data-lucide="info"></i>
+        </div>
         <div>
-            <strong>Catatan Penting</strong>
-            <p>Pastikan laporan yang dikirimkan sesuai dengan fakta di lapangan untuk memudahkan tim teknis memberikan solusi terbaik.</p>
+            <strong>Catatan Penting Eskalasi</strong>
+            <p>Gunakan prioritas <strong>Kritis</strong> hanya untuk kondisi darurat yang menghentikan aktivitas operasional secara total.</p>
         </div>
     </div>
 </section>
@@ -354,25 +406,53 @@
 
 
 <!-- =====================================================
+     MODAL DETAIL TIKET
+===================================================== -->
+<div id="ticketModal" class="modal-backdrop" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-header">
+            <div>
+                <span id="modalTicketId" class="ticket-id">ERP-0000</span>
+                <h3 id="modalTitle" style="margin-top: 6px;">Detail Laporan</h3>
+            </div>
+            <button id="btnCloseModal" class="close-modal-btn" type="button" aria-label="Tutup Modal">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div id="modalBody" class="modal-body"></div>
+        <div class="modal-footer">
+            <button id="btnModalCycleStatus" class="hero-btn" type="button" style="padding: 10px 18px; font-size: 0.85rem;">
+                <i data-lucide="refresh-cw"></i> Ubah Status Progres
+            </button>
+            <button id="btnModalCloseFooter" class="secondary-btn" type="button">Tutup</button>
+        </div>
+    </div>
+</div>
+
+
+<!-- =====================================================
      FOOTER
 ===================================================== -->
 <footer class="footer">
     <div class="footer-brand">
-        <div class="footer-logo">ER</div>
+        <div class="footer-logo">
+            <i data-lucide="command"></i>
+        </div>
         <div>
-            <strong>E-Report System</strong>
-            <p>Platform Pengaduan Sarana Digital Masa Kini</p>
+            <strong>E-Report Enterprise Suite</strong>
+            <p>Sistem Pengaduan Sarana Digital Profesional</p>
         </div>
     </div>
 
     <div class="footer-right">
         <p>© 2026 E-Report • All Rights Reserved</p>
-        <span>Engineered with HTML5, Modern CSS & JavaScript</span>
+        <span>Responsive Web App • HTML5, CSS3 & Vanilla ES6+</span>
     </div>
 </footer>
 
+
 <!-- =====================================================
-     JAVASCRIPT
+     SCRIPTS INITIALIZATION
 ===================================================== -->
 <script src="assets/js/sricpt.js"></script>
 

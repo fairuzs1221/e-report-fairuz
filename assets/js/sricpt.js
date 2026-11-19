@@ -1,1367 +1,547 @@
 /* =====================================================
-   KONFIGURASI
+   E-REPORT ENTERPRISE — ANIMATED & RESPONSIVE ENGINE v4.0
 ===================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    const STORAGE_KEY = 'ereport_pro_data_v4';
+    const THEME_KEY = 'ereport_pro_theme_v4';
 
-// Key untuk menyimpan data laporan
-const STORAGE_KEY = "ereport_data_v4";
+    const defaultReports = [
+        {
+            id: 'ERP-9021',
+            pelapor: 'Andi Wijaya (IT)',
+            kategori: 'Internet',
+            lokasi: 'Gedung Utama Lt. 2',
+            urgensi: 'Tinggi',
+            judul: 'Bandwidth Utama Server Fluktuatif',
+            deskripsi: 'Koneksi backbone server mengalami drop paket sejak pukul 08:00 WIB dan menghambat akses sistem internal.',
+            status: 'Diproses',
+            waktu: 'Hari ini, 08:30'
+        },
+        {
+            id: 'ERP-9020',
+            pelapor: 'Siti Aminah (HR)',
+            kategori: 'Fasilitas',
+            lokasi: 'Gedung B Lt. 3',
+            urgensi: 'Normal',
+            judul: 'Lampu LED Ruang Rapat Redup',
+            deskripsi: 'Dua titik lampu downlight di ruang rapat utama kedap-kedip saat digunakan presentasi.',
+            status: 'Menunggu',
+            waktu: 'Hari ini, 09:10'
+        },
+        {
+            id: 'ERP-9019',
+            pelapor: 'Rizky Pratama (Ops)',
+            kategori: 'Keamanan',
+            lokasi: 'Gerbang Timur',
+            urgensi: 'Kritis',
+            judul: 'Gate Access RFID Rusak Total',
+            deskripsi: 'Pintu gerbang otomatis tidak merespon kartu akses karyawan sehingga antrean kendaraan menumpuk.',
+            status: 'Selesai',
+            waktu: 'Kemarin, 16:45'
+        }
+    ];
 
-// Key untuk menyimpan tema
-const THEME_KEY = "ereport_theme";
+    let reports = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultReports;
+    let myReportChart = null;
+    let currentChartType = 'bar';
+    let activeModalTicketId = null;
 
+    // DOM Elements
+    const dynamicIsland = document.getElementById('dynamicIsland');
+    const islandText = document.getElementById('islandText');
+    const btnNavHome = document.getElementById('btnNavHome');
+    const btnNavGuide = document.getElementById('btnNavGuide');
+    const pageHome = document.getElementById('pageHome');
+    const pageGuide = document.getElementById('pageGuide');
+    const btnDarkMode = document.getElementById('btnDarkMode');
+    const themeIcon = document.getElementById('themeIcon');
 
-/* =====================================================
-   DATA AWAL
-===================================================== */
+    const btnScrollForm = document.getElementById('btnScrollForm');
+    const btnScrollStats = document.getElementById('btnScrollStats');
+    const statCards = document.querySelectorAll('.stat-card');
 
-let laporan = JSON.parse(
-    localStorage.getItem(STORAGE_KEY)
-) || [
-    {
-        id: "LPR-01",
-        tanggal: "10/11/2026",
-        pelapor: "Muhammad Fairuz",
-        kategori: "Internet",
-        lokasi: "Gedung A",
-        judul: "Kabel Internet Longgar",
-        deskripsi:
-            "Kabel internet longgar dan dapat membahayakan pengguna.",
-        status: "Diproses"
+    const reportForm = document.getElementById('reportForm');
+    const btnSubmitForm = document.getElementById('btnSubmitForm');
+    const deskripsiInput = document.getElementById('deskripsi');
+    const charCounter = document.getElementById('charCounter');
+    const notifBox = document.getElementById('notifBox');
+
+    const btnToggleChartType = document.getElementById('btnToggleChartType');
+    const searchBox = document.getElementById('searchBox');
+    const statusFilter = document.getElementById('statusFilter');
+    const reportTableBody = document.getElementById('reportTableBody');
+
+    const btnExportCSV = document.getElementById('btnExportCSV');
+    const btnPrintPDF = document.getElementById('btnPrintPDF');
+    const btnDeleteLast = document.getElementById('btnDeleteLast');
+    const btnClearDone = document.getElementById('btnClearDone');
+
+    const totalCount = document.getElementById('totalCount');
+    const waitCount = document.getElementById('waitCount');
+    const procCount = document.getElementById('procCount');
+    const doneCount = document.getElementById('doneCount');
+
+    // Modal Elements
+    const ticketModal = document.getElementById('ticketModal');
+    const modalTicketId = document.getElementById('modalTicketId');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnModalCloseFooter = document.getElementById('btnModalCloseFooter');
+    const btnModalCycleStatus = document.getElementById('btnModalCycleStatus');
+
+    // Helper: Refresh Lucide Icons
+    function refreshIcons() {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     }
-];
 
-
-/* =====================================================
-   HELPER
-===================================================== */
-
-const $ = (id) => document.getElementById(id);
-
-
-/* =====================================================
-   SIMPAN DATA
-===================================================== */
-
-function simpanData() {
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(laporan)
-    );
-}
-
-
-/* =====================================================
-   NOTIFIKASI
-===================================================== */
-
-function tampilNotif(pesan, tipe = "success") {
-
-    const box = $("notifBox");
-
-    if (!box) return;
-
-    box.textContent = pesan;
-
-    box.className =
-        "notification " + tipe;
-
-    box.style.display = "block";
-
-    setTimeout(() => {
-
-        box.style.display = "none";
-
-    }, 2500);
-}
-
-
-/* =====================================================
-   STATUS BADGE
-===================================================== */
-
-function badgeStatus(status) {
-
-    switch (status) {
-
-        case "Menunggu":
-
-            return `
-                <span class="badge badge-menunggu">
-                    Menunggu
-                </span>
-            `;
-
-        case "Diproses":
-
-            return `
-                <span class="badge badge-diproses">
-                    Diproses
-                </span>
-            `;
-
-        case "Selesai":
-
-            return `
-                <span class="badge badge-selesai">
-                    Selesai
-                </span>
-            `;
-
-        default:
-
-            return `
-                <span class="badge">
-                    Tidak diketahui
-                </span>
-            `;
-    }
-}
-
-
-/* =====================================================
-   RENDER DATA
-===================================================== */
-
-function renderData() {
-
-    const search =
-        $("searchBox").value.toLowerCase();
-
-    const filter =
-        $("statusFilter").value;
-
-
-    // filter() digunakan untuk mencari data
-    const data = laporan.filter(item => {
-
-        const cocokSearch =
-            item.judul.toLowerCase().includes(search) ||
-            item.pelapor.toLowerCase().includes(search);
-
-        const cocokStatus =
-            filter === "Semua" ||
-            item.status === filter;
-
-        // && digunakan agar kedua kondisi harus sesuai
-        return cocokSearch && cocokStatus;
+    // =====================================================
+    // SCROLL ANIMATION OBSERVER (MUNCUL SAAT SCROLL)
+    // =====================================================
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+            }
+        });
+    }, {
+        threshold: 0.12,
+        rootMargin: '0px 0px -50px 0px'
     });
 
+    function initScrollReveal() {
+        const revealElements = document.querySelectorAll('.reveal-element');
+        revealElements.forEach(el => revealObserver.observe(el));
+    }
 
-    $("reportTableBody").innerHTML =
-        data.map(item => {
+    // Dynamic Island Notifier
+    let islandTimeout;
+    function triggerIsland(message) {
+        islandText.textContent = message;
+        dynamicIsland.classList.add('expanded');
+        clearTimeout(islandTimeout);
+        islandTimeout = setTimeout(() => {
+            dynamicIsland.classList.remove('expanded');
+            islandText.textContent = 'System Core v4.0 Active';
+        }, 3200);
+    }
+
+    dynamicIsland.addEventListener('click', () => {
+        dynamicIsland.classList.toggle('expanded');
+    });
+
+    // Alert Banner
+    let alertTimeout;
+    function showAlert(message, type = 'success') {
+        notifBox.className = `notification show ${type}`;
+        notifBox.innerHTML = `<span>${message}</span><button type="button" style="background:none;border:none;color:inherit;font-weight:800;cursor:pointer;font-size:1rem;" onclick="this.parentElement.classList.remove('show')">✕</button>`;
+        clearTimeout(alertTimeout);
+        alertTimeout = setTimeout(() => notifBox.classList.remove('show'), 4500);
+    }
+
+    // Smooth Scroll Buttons
+    btnScrollForm.addEventListener('click', () => {
+        document.getElementById('reportCardForm').scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => document.getElementById('pelapor').focus(), 400);
+    });
+
+    btnScrollStats.addEventListener('click', () => {
+        document.getElementById('monitoringSection').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Klik Kartu Statistik untuk Filter Cepat
+    statCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const filterValue = card.getAttribute('data-filter');
+            statusFilter.value = filterValue;
+            renderTable();
+            document.getElementById('monitoringSection').scrollIntoView({ behavior: 'smooth' });
+            triggerIsland(`Filter Status: ${filterValue}`);
+        });
+    });
+
+    // Navigation Tabs
+    function switchPage(target) {
+        if (target === 'home') {
+            pageHome.classList.add('active');
+            pageGuide.classList.remove('active');
+            btnNavHome.classList.add('active');
+            btnNavGuide.classList.remove('active');
+            triggerIsland('Dasbor Utama Aktif');
+        } else {
+            pageGuide.classList.add('active');
+            pageHome.classList.remove('active');
+            btnNavGuide.classList.add('active');
+            btnNavHome.classList.remove('active');
+            triggerIsland('Membuka Panduan SOP');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(initScrollReveal, 100);
+    }
+
+    btnNavHome.addEventListener('click', () => switchPage('home'));
+    btnNavGuide.addEventListener('click', () => switchPage('guide'));
+
+    // Theme Toggle
+    if (localStorage.getItem(THEME_KEY) === 'light') {
+        document.body.classList.add('light-mode');
+        themeIcon.setAttribute('data-lucide', 'moon');
+    } else {
+        themeIcon.setAttribute('data-lucide', 'sun');
+    }
+    refreshIcons();
+
+    btnDarkMode.addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        themeIcon.setAttribute('data-lucide', isLight ? 'moon' : 'sun');
+        refreshIcons();
+        localStorage.setItem(THEME_KEY, isLight ? 'light' : 'dark');
+        triggerIsland(isLight ? 'Tema Terang Aktif' : 'Tema Gelap Aktif');
+        initChart();
+    });
+
+    // Character Counter
+    deskripsiInput.addEventListener('input', () => {
+        const len = deskripsiInput.value.length;
+        charCounter.textContent = `${len} karakter`;
+        charCounter.style.color = len >= 10 ? '#10b981' : '';
+    });
+
+    // Chart.js Engine
+    btnToggleChartType.addEventListener('click', () => {
+        currentChartType = currentChartType === 'bar' ? 'doughnut' : 'bar';
+        initChart();
+        triggerIsland(`Model Grafik: ${currentChartType.toUpperCase()}`);
+    });
+
+    function initChart() {
+        const canvas = document.getElementById('reportChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const categories = ['Internet', 'Fasilitas', 'Kebersihan', 'Keamanan', 'Lainnya'];
+        const dataCounts = categories.map(cat => reports.filter(r => r.kategori === cat).length);
+
+        const isLight = document.body.classList.contains('light-mode');
+        const textColor = isLight ? '#475569' : '#94a3b8';
+        const gridColor = isLight ? 'rgba(226, 232, 240, 0.8)' : 'rgba(51, 65, 85, 0.4)';
+
+        if (myReportChart) {
+            myReportChart.destroy();
+        }
+
+        myReportChart = new Chart(ctx, {
+            type: currentChartType,
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: 'Jumlah Tiket',
+                    data: dataCounts,
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.85)',
+                        'rgba(2, 132, 199, 0.85)',
+                        'rgba(245, 158, 11, 0.85)',
+                        'rgba(139, 92, 246, 0.85)',
+                        'rgba(239, 68, 68, 0.85)'
+                    ],
+                    borderColor: ['#10b981', '#0284c7', '#d97706', '#7c3aed', '#ef4444'],
+                    borderWidth: 2,
+                    borderRadius: currentChartType === 'bar' ? 8 : 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: currentChartType === 'doughnut',
+                        labels: { color: textColor }
+                    }
+                },
+                scales: currentChartType === 'bar' ? {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, color: textColor },
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { display: false }
+                    }
+                } : {}
+            }
+        });
+    }
+
+    // Pipeline Data
+    function saveReports() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+        updateStats();
+        renderTable();
+        initChart();
+    }
+
+    function updateStats() {
+        totalCount.textContent = reports.length;
+        waitCount.textContent = reports.filter(r => r.status === 'Menunggu').length;
+        procCount.textContent = reports.filter(r => r.status === 'Diproses').length;
+        doneCount.textContent = reports.filter(r => r.status === 'Selesai').length;
+    }
+
+    function escapeHTML(str) {
+        return String(str).replace(/[&<>"']/g, m => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[m]));
+    }
+
+    function renderTable() {
+        const keyword = searchBox.value.toLowerCase().trim();
+        const filter = statusFilter.value;
+
+        const filtered = reports.filter(item => {
+            const matchKeyword =
+                item.judul.toLowerCase().includes(keyword) ||
+                item.pelapor.toLowerCase().includes(keyword) ||
+                item.lokasi.toLowerCase().includes(keyword) ||
+                item.id.toLowerCase().includes(keyword);
+            const matchStatus = filter === 'Semua' || item.status === filter;
+            return matchKeyword && matchStatus;
+        });
+
+        if (filtered.length === 0) {
+            reportTableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center; padding: 36px; color: var(--text-muted);">
+                        Tidak ada data pengaduan yang sesuai dengan filter saat ini.
+                    </td>
+                </tr>`;
+            return;
+        }
+
+        reportTableBody.innerHTML = filtered.map(item => {
+            const statusClass =
+                item.status === 'Menunggu' ? 'status-menunggu' :
+                item.status === 'Diproses' ? 'status-diproses' : 'status-selesai';
+
+            const urgensiClass =
+                item.urgensi === 'Kritis' ? 'urgensi-kritis' :
+                item.urgensi === 'Tinggi' ? 'urgensi-tinggi' : 'urgensi-normal';
+
+            const statusIcon =
+                item.status === 'Menunggu' ? '⏳' :
+                item.status === 'Diproses' ? '⚙️' : '✓';
 
             return `
                 <tr>
-
+                    <td><span class="ticket-id">${escapeHTML(item.id)}</span></td>
                     <td>
-                        <strong>${item.id}</strong>
+                        <span class="report-title" onclick="openTicketModal('${item.id}')">${escapeHTML(item.judul)}</span>
+                        <span class="report-desc">${escapeHTML(item.deskripsi)}</span>
+                        <span class="cat-pill">${escapeHTML(item.kategori)}</span>
+                        <span class="urgensi-pill ${urgensiClass}">${escapeHTML(item.urgensi)}</span>
                     </td>
-
                     <td>
-                        <strong>${item.judul}</strong>
-                        <br>
-                        <small>
-                            ${item.lokasi}
-                        </small>
+                        <strong>${escapeHTML(item.pelapor)}</strong><br>
+                        <small style="color: var(--text-secondary)">📍 ${escapeHTML(item.lokasi)}</small><br>
+                        <small style="color: var(--text-muted); font-size: 0.72rem;">🕒 ${escapeHTML(item.waktu)}</small>
                     </td>
-
                     <td>
-                        ${item.pelapor}
-                        <br>
-                        <small>
-                            ${item.kategori}
-                        </small>
+                        <span class="status-badge ${statusClass}">
+                            ${statusIcon} ${escapeHTML(item.status)}
+                        </span>
                     </td>
-
                     <td>
-                        ${badgeStatus(item.status)}
+                        <div class="table-actions">
+                            <button type="button" class="btn-table" onclick="openTicketModal('${item.id}')" title="Lihat Detail">
+                                👁 Detail
+                            </button>
+                            <button type="button" class="btn-table" onclick="cycleStatus('${item.id}')" title="Ubah Status">
+                                🔄 Status
+                            </button>
+                            <button type="button" class="btn-table del" onclick="deleteReport('${item.id}')" title="Hapus Tiket">
+                                🗑
+                            </button>
+                        </div>
                     </td>
-
-                    <td>
-
-                        <button
-                            class="action-btn"
-                            onclick="ubahStatus('${item.id}')">
-                            Status
-                        </button>
-
-                        <button
-                            class="action-btn delete"
-                            onclick="hapusLaporan('${item.id}')">
-                            Hapus
-                        </button>
-
-                    </td>
-
                 </tr>
             `;
-
-        }).join("");
-
-
-    // Jika tidak ada data
-    if (data.length === 0) {
-
-        $("reportTableBody").innerHTML = `
-            <tr>
-
-                <td
-                    colspan="5"
-                    style="
-                        text-align:center;
-                        padding:30px;
-                    "
-                >
-                    Tidak ada laporan ditemukan.
-                </td>
-
-            </tr>
-        `;
+        }).join('');
     }
 
-
-    updateStats();
-}
-
-
-/* =====================================================
-   UPDATE STATISTIK
-===================================================== */
-
-function updateStats() {
-
-    $("totalCount").textContent =
-        laporan.length;
-
-    $("waitCount").textContent =
-        laporan.filter(
-            x => x.status === "Menunggu"
-        ).length;
-
-    $("procCount").textContent =
-        laporan.filter(
-            x => x.status === "Diproses"
-        ).length;
-
-    $("doneCount").textContent =
-        laporan.filter(
-            x => x.status === "Selesai"
-        ).length;
-}
-
-
-/* =====================================================
-   SUBMIT FORM
-===================================================== */
-
-$("reportForm").addEventListener(
-    "submit",
-    function (e) {
-
-        // Mencegah halaman reload
+    // Form Submission dengan Efek Loading Responsif
+    reportForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
-
-        const judul =
-            $("judul").value.trim();
-
-        const deskripsi =
-            $("deskripsi").value.trim();
-
-
-        // Validasi judul
-        if (judul.length < 5) {
-
-            tampilNotif(
-                "Judul minimal 5 karakter.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        // Validasi deskripsi
-        if (deskripsi.length < 10) {
-
-            tampilNotif(
-                "Deskripsi minimal 10 karakter.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        // Membuat ID laporan baru
-        const nomor =
-            laporan.length + 1;
-
-        const idBaru =
-            "LPR-" +
-            String(nomor).padStart(2, "0");
-
-
-        // Membuat object laporan
-        laporan.push({
-
-            id: idBaru,
-
-            tanggal:
-                new Date()
-                    .toLocaleDateString("id-ID"),
-
-            pelapor:
-                $("pelapor").value,
-
-            kategori:
-                $("kategori").value,
-
-            lokasi:
-                $("lokasi").value,
-
-            judul: judul,
-
-            deskripsi: deskripsi,
-
-            status: "Menunggu"
-        });
-
-
-        // Simpan ke LocalStorage
-        simpanData();
-
-        // Tampilkan data
-        renderData();
-
-
-        // Reset form
-        this.reset();
-
-
-        // Reset counter
-        $("charCounter").textContent =
-            "0 karakter";
-
-
-        tampilNotif(
-            "Laporan berhasil dikirim."
-        );
-    }
-);
-
-
-/* =====================================================
-   CHARACTER COUNTER
-===================================================== */
-
-$("deskripsi").addEventListener(
-    "input",
-    function () {
-
-        const jumlah =
-            this.value.length;
-
-        $("charCounter").textContent =
-            `${jumlah} karakter`;
-
-
-        // Jika kurang dari 10 merah
-        if (jumlah < 10) {
-
-            $("charCounter").style.color =
-                "#dc2626";
-
-        }
-
-        // Jika sudah 10 hijau
-        else {
-
-            $("charCounter").style.color =
-                "#16a34a";
-        }
-    }
-);
-
-
-/* =====================================================
-   UBAH STATUS
-===================================================== */
-
-function ubahStatus(id) {
-
-    const item =
-        laporan.find(x => x.id === id);
-
-    if (!item) return;
-
-
-    // switch-case untuk mengubah status
-    switch (item.status) {
-
-        case "Menunggu":
-
-            item.status = "Diproses";
-
-            break;
-
-        case "Diproses":
-
-            item.status = "Selesai";
-
-            break;
-
-        case "Selesai":
-
-            item.status = "Menunggu";
-
-            break;
-
-        default:
-
-            item.status = "Menunggu";
-    }
-
-
-    simpanData();
-
-    renderData();
-
-    tampilNotif(
-        "Status laporan berhasil diubah."
-    );
-}
-
-
-/* =====================================================
-   HAPUS LAPORAN
-===================================================== */
-
-function hapusLaporan(id) {
-
-    laporan =
-        laporan.filter(
-            x => x.id !== id
-        );
-
-
-    simpanData();
-
-    renderData();
-
-    tampilNotif(
-        "Laporan berhasil dihapus."
-    );
-}
-
-
-/* =====================================================
-   HAPUS LAPORAN TERAKHIR
-===================================================== */
-
-$("btnDeleteLast").onclick =
-    function () {
-
-        if (laporan.length === 0) {
-
-            tampilNotif(
-                "Tidak ada laporan.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        laporan.pop();
-
-        simpanData();
-
-        renderData();
-
-        tampilNotif(
-            "Laporan terakhir dihapus."
-        );
-    };
-
-
-/* =====================================================
-   HAPUS SEMUA STATUS SELESAI
-===================================================== */
-
-$("btnClearDone").onclick =
-    function () {
-
-        const sebelum =
-            laporan.length;
-
-
-        // filter() menghapus laporan yang statusnya Selesai
-        laporan =
-            laporan.filter(
-                x => x.status !== "Selesai"
-            );
-
-
-        if (sebelum === laporan.length) {
-
-            tampilNotif(
-                "Tidak ada laporan selesai.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        simpanData();
-
-        renderData();
-
-        tampilNotif(
-            "Laporan selesai berhasil dihapus."
-        );
-    };
-
-
-/* =====================================================
-   SEARCH & FILTER
-===================================================== */
-
-$("searchBox").addEventListener(
-    "input",
-    renderData
-);
-
-$("statusFilter").addEventListener(
-    "change",
-    renderData
-);
-
-
-/* =====================================================
-   NAVIGASI
-===================================================== */
-
-$("btnNavHome").onclick =
-    function () {
-
-        $("pageHome")
-            .classList.add("active");
-
-        $("pageGuide")
-            .classList.remove("active");
-
-
-        $("btnNavHome")
-            .classList.add("active");
-
-        $("btnNavGuide")
-            .classList.remove("active");
-    };
-
-
-$("btnNavGuide").onclick =
-    function () {
-
-        $("pageGuide")
-            .classList.add("active");
-
-        $("pageHome")
-            .classList.remove("active");
-
-
-        $("btnNavGuide")
-            .classList.add("active");
-
-        $("btnNavHome")
-            .classList.remove("active");
-    };
-
-
-/* =====================================================
-   DARK MODE
-===================================================== */
-
-// Fungsi untuk membaca tema yang tersimpan
-function setTheme() {
-
-    const darkMode =
-        localStorage.getItem(THEME_KEY)
-        === "dark";
-
-
-    // Menambahkan class dark ke body
-    document.body.classList.toggle(
-        "dark",
-        darkMode
-    );
-
-
-    const button =
-        $("btnDarkMode");
-
-
-    if (button) {
-
-        button.textContent =
-            darkMode ? "☀️" : "🌙";
-
-        button.title =
-            darkMode
-                ? "Mode Terang"
-                : "Dark Mode";
-    }
-}
-
-
-/* =====================================================
-   BUTTON DARK MODE
-===================================================== */
-
-const btnDarkMode =
-    $("btnDarkMode");
-
-
-if (btnDarkMode) {
-
-    btnDarkMode.addEventListener(
-        "click",
-        function () {
-
-            // Cek apakah mode sekarang dark
-            const isDark =
-                document.body.classList.toggle(
-                    "dark"
-                );
-
-
-            // Simpan pilihan pengguna
-            localStorage.setItem(
-                THEME_KEY,
-                isDark
-                    ? "dark"
-                    : "light"
-            );
-
-
-            // Ubah icon tombol
-            this.textContent =
-                isDark
-                    ? "☀️"
-                    : "🌙";
-
-
-            this.title =
-                isDark
-                    ? "Mode Terang"
-                    : "Dark Mode";
-
-
-            tampilNotif(
-                isDark
-                    ? "🌙 Dark Mode aktif"
-                    : "☀️ Mode terang aktif"
-            );
-        }
-    );
-}
-
-
-/* =====================================================
-   JALANKAN PROGRAM
-===================================================== */
-
-// Terapkan tema yang tersimpan
-setTheme();
-
-// Tampilkan data saat halaman dibuka
-renderData();
-
-/* =====================================================
-   KONFIGURASI
-===================================================== */
-
-// Key untuk menyimpan data laporan
-const STORAGE_KEY = "ereport_data_v4";
-
-// Key untuk menyimpan tema
-const THEME_KEY = "ereport_theme";
-
-
-/* =====================================================
-   DATA AWAL
-===================================================== */
-
-let laporan = JSON.parse(
-    localStorage.getItem(STORAGE_KEY)
-) || [
-    {
-        id: "LPR-01",
-        tanggal: "10/11/2026",
-        pelapor: "Muhammad Fairuz",
-        kategori: "Internet",
-        lokasi: "Gedung A",
-        judul: "Kabel Internet Longgar",
-        deskripsi:
-            "Kabel internet longgar dan dapat membahayakan pengguna.",
-        status: "Diproses"
-    }
-];
-
-
-/* =====================================================
-   HELPER
-===================================================== */
-
-const $ = (id) => document.getElementById(id);
-
-
-/* =====================================================
-   SIMPAN DATA
-===================================================== */
-
-function simpanData() {
-
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(laporan)
-    );
-}
-
-
-/* =====================================================
-   DYNAMIC ISLAND NOTIFIKASI
-===================================================== */
-
-function tampilNotif(pesan, tipe = "success") {
-
-    const island = $("dynamicIsland");
-    const islandText = $("islandText");
-
-    if (!island || !islandText) return;
-
-    // Set teks pesan
-    islandText.textContent = pesan;
-
-    // Tambahkan class show dan expanded agar kapsul membesar dengan animasi spring
-    island.classList.add("show", "expanded");
-
-    // Hilangkan efek expanded setelah 1.8 detik (kembali ke kapsul ringkas)
-    setTimeout(() => {
-        island.classList.remove("expanded");
-    }, 1800);
-
-    // Sembunyikan sepenuhnya setelah 3.5 detik
-    setTimeout(() => {
-        island.classList.remove("show");
-    }, 3500);
-}
-
-
-/* =====================================================
-   STATUS BADGE
-===================================================== */
-
-function badgeStatus(status) {
-
-    switch (status) {
-
-        case "Menunggu":
-
-            return `
-                <span class="badge badge-menunggu">
-                    Menunggu
-                </span>
-            `;
-
-        case "Diproses":
-
-            return `
-                <span class="badge badge-diproses">
-                    Diproses
-                </span>
-            `;
-
-        case "Selesai":
-
-            return `
-                <span class="badge badge-selesai">
-                    Selesai
-                </span>
-            `;
-
-        default:
-
-            return `
-                <span class="badge">
-                    Tidak diketahui
-                </span>
-            `;
-    }
-}
-
-
-/* =====================================================
-   RENDER DATA
-===================================================== */
-
-function renderData() {
-
-    const search =
-        $("searchBox").value.toLowerCase();
-
-    const filter =
-        $("statusFilter").value;
-
-
-    // filter() digunakan untuk mencari data
-    const data = laporan.filter(item => {
-
-        const cocokSearch =
-            item.judul.toLowerCase().includes(search) ||
-            item.pelapor.toLowerCase().includes(search);
-
-        const cocokStatus =
-            filter === "Semua" ||
-            item.status === filter;
-
-        // && digunakan agar kedua kondisi harus sesuai
-        return cocokSearch && cocokStatus;
+        const originalBtnHTML = btnSubmitForm.innerHTML;
+        btnSubmitForm.disabled = true;
+        btnSubmitForm.style.opacity = '0.8';
+        btnSubmitForm.innerHTML = `<span>⏳ Memproses Tiket...</span>`;
+
+        setTimeout(() => {
+            const newReport = {
+                id: 'ERP-' + Math.floor(1000 + Math.random() * 9000),
+                pelapor: document.getElementById('pelapor').value.trim(),
+                kategori: document.getElementById('kategori').value,
+                lokasi: document.getElementById('lokasi').value.trim(),
+                urgensi: document.getElementById('urgensi').value,
+                judul: document.getElementById('judul').value.trim(),
+                deskripsi: deskripsiInput.value.trim(),
+                status: 'Menunggu',
+                waktu: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB'
+            };
+
+            reports.unshift(newReport);
+            saveReports();
+
+            reportForm.reset();
+            charCounter.textContent = '0 karakter';
+            charCounter.style.color = '';
+
+            btnSubmitForm.disabled = false;
+            btnSubmitForm.style.opacity = '1';
+            btnSubmitForm.innerHTML = originalBtnHTML;
+            refreshIcons();
+
+            showAlert(`✅ Tiket ${newReport.id} berhasil dikirim ke sistem antrean!`, 'success');
+            triggerIsland(`Tiket Baru: ${newReport.id}`);
+        }, 400);
     });
 
+    // Modal Detail Tiket
+    window.openTicketModal = function(id) {
+        const item = reports.find(r => r.id === id);
+        if (!item) return;
 
-    $("reportTableBody").innerHTML =
-        data.map(item => {
-
-            return `
-                <tr>
-
-                    <td>
-                        <strong>${item.id}</strong>
-                    </td>
-
-                    <td>
-                        <strong>${item.judul}</strong>
-                        <br>
-                        <small>
-                            ${item.lokasi}
-                        </small>
-                    </td>
-
-                    <td>
-                        ${item.pelapor}
-                        <br>
-                        <small>
-                            ${item.kategori}
-                        </small>
-                    </td>
-
-                    <td>
-                        ${badgeStatus(item.status)}
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="action-btn"
-                            onclick="ubahStatus('${item.id}')">
-                            Status
-                        </button>
-
-                        <button
-                            class="action-btn delete"
-                            onclick="hapusLaporan('${item.id}')">
-                            Hapus
-                        </button>
-
-                    </td>
-
-                </tr>
-            `;
-
-        }).join("");
-
-
-    // Jika tidak ada data
-    if (data.length === 0) {
-
-        $("reportTableBody").innerHTML = `
-            <tr>
-
-                <td
-                    colspan="5"
-                    style="
-                        text-align:center;
-                        padding:30px;
-                    "
-                >
-                    Tidak ada laporan ditemukan.
-                </td>
-
-            </tr>
+        activeModalTicketId = id;
+        modalTicketId.textContent = item.id;
+        modalTitle.textContent = item.judul;
+        modalBody.innerHTML = `
+            <div class="modal-detail-grid">
+                <div class="modal-detail-item">
+                    <small>Pelapor</small>
+                    <strong>${escapeHTML(item.pelapor)}</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <small>Lokasi</small>
+                    <strong>${escapeHTML(item.lokasi)}</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <small>Kategori & Urgensi</small>
+                    <strong>${escapeHTML(item.kategori)} • ${escapeHTML(item.urgensi)}</strong>
+                </div>
+                <div class="modal-detail-item">
+                    <small>Status & Waktu</small>
+                    <strong>${escapeHTML(item.status)} (${escapeHTML(item.waktu)})</strong>
+                </div>
+            </div>
+            <div>
+                <small style="display:block; font-weight:700; color:var(--text-muted); margin-bottom:6px; text-transform:uppercase; font-size:0.72rem;">Kronologi Masalah</small>
+                <div class="modal-desc-box">${escapeHTML(item.deskripsi)}</div>
+            </div>
         `;
-    }
-
-
-    updateStats();
-}
-
-
-/* =====================================================
-   UPDATE STATISTIK
-===================================================== */
-
-function updateStats() {
-
-    $("totalCount").textContent =
-        laporan.length;
-
-    $("waitCount").textContent =
-        laporan.filter(
-            x => x.status === "Menunggu"
-        ).length;
-
-    $("procCount").textContent =
-        laporan.filter(
-            x => x.status === "Diproses"
-        ).length;
-
-    $("doneCount").textContent =
-        laporan.filter(
-            x => x.status === "Selesai"
-        ).length;
-}
-
-
-/* =====================================================
-   SUBMIT FORM
-===================================================== */
-
-$("reportForm").addEventListener(
-    "submit",
-    function (e) {
-
-        // Mencegah halaman reload
-        e.preventDefault();
-
-
-        const judul =
-            $("judul").value.trim();
-
-        const deskripsi =
-            $("deskripsi").value.trim();
-
-
-        // Validasi judul
-        if (judul.length < 5) {
-
-            tampilNotif(
-                "Judul minimal 5 karakter.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        // Validasi deskripsi
-        if (deskripsi.length < 10) {
-
-            tampilNotif(
-                "Deskripsi minimal 10 karakter.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        // Membuat ID laporan baru
-        const nomor =
-            laporan.length + 1;
-
-        const idBaru =
-            "LPR-" +
-            String(nomor).padStart(2, "0");
-
-
-        // Membuat object laporan
-        laporan.push({
-
-            id: idBaru,
-
-            tanggal:
-                new Date()
-                    .toLocaleDateString("id-ID"),
-
-            pelapor:
-                $("pelapor").value,
-
-            kategori:
-                $("kategori").value,
-
-            lokasi:
-                $("lokasi").value,
-
-            judul: judul,
-
-            deskripsi: deskripsi,
-
-            status: "Menunggu"
-        });
-
-
-        // Simpan ke LocalStorage
-        simpanData();
-
-        // Tampilkan data
-        renderData();
-
-
-        // Reset form
-        this.reset();
-
-
-        // Reset counter
-        $("charCounter").textContent =
-            "0 karakter";
-
-
-        tampilNotif(
-            "Laporan berhasil dikirim."
-        );
-    }
-);
-
-
-/* =====================================================
-   CHARACTER COUNTER
-===================================================== */
-
-$("deskripsi").addEventListener(
-    "input",
-    function () {
-
-        const jumlah =
-            this.value.length;
-
-        $("charCounter").textContent =
-            `${jumlah} karakter`;
-
-
-        // Jika kurang dari 10 merah
-        if (jumlah < 10) {
-
-            $("charCounter").style.color =
-                "#dc2626";
-
-        }
-
-        // Jika sudah 10 hijau
-        else {
-
-            $("charCounter").style.color =
-                "#16a34a";
-        }
-    }
-);
-
-
-/* =====================================================
-   UBAH STATUS
-===================================================== */
-
-function ubahStatus(id) {
-
-    const item =
-        laporan.find(x => x.id === id);
-
-    if (!item) return;
-
-
-    // switch-case untuk mengubah status
-    switch (item.status) {
-
-        case "Menunggu":
-
-            item.status = "Diproses";
-
-            break;
-
-        case "Diproses":
-
-            item.status = "Selesai";
-
-            break;
-
-        case "Selesai":
-
-            item.status = "Menunggu";
-
-            break;
-
-        default:
-
-            item.status = "Menunggu";
-    }
-
-
-    simpanData();
-
-    renderData();
-
-    tampilNotif(
-        `Status ${id} diubah ke ${item.status}.`
-    );
-}
-
-
-/* =====================================================
-   HAPUS LAPORAN
-===================================================== */
-
-function hapusLaporan(id) {
-
-    laporan =
-        laporan.filter(
-            x => x.id !== id
-        );
-
-
-    simpanData();
-
-    renderData();
-
-    tampilNotif(
-        `Laporan ${id} berhasil dihapus.`
-    );
-}
-
-
-/* =====================================================
-   HAPUS LAPORAN TERAKHIR
-===================================================== */
-
-$("btnDeleteLast").onclick =
-    function () {
-
-        if (laporan.length === 0) {
-
-            tampilNotif(
-                "Tidak ada laporan.",
-                "warning"
-            );
-
-            return;
-        }
-
-
-        laporan.pop();
-
-        simpanData();
-
-        renderData();
-
-        tampilNotif(
-            "Laporan terakhir dihapus."
-        );
+        ticketModal.classList.add('open');
+        ticketModal.setAttribute('aria-hidden', 'false');
+        refreshIcons();
     };
 
+    function closeTicketModal() {
+        ticketModal.classList.remove('open');
+        ticketModal.setAttribute('aria-hidden', 'true');
+        activeModalTicketId = null;
+    }
 
-/* =====================================================
-   HAPUS SEMUA STATUS SELESAI
-===================================================== */
+    btnCloseModal.addEventListener('click', closeTicketModal);
+    btnModalCloseFooter.addEventListener('click', closeTicketModal);
+    ticketModal.addEventListener('click', (e) => {
+        if (e.target === ticketModal) closeTicketModal();
+    });
 
-$("btnClearDone").onclick =
-    function () {
+    btnModalCycleStatus.addEventListener('click', () => {
+        if (activeModalTicketId) {
+            window.cycleStatus(activeModalTicketId);
+            window.openTicketModal(activeModalTicketId);
+        }
+    });
 
-        const sebelum =
-            laporan.length;
+    // Global Row Actions
+    window.cycleStatus = function(id) {
+        const order = ['Menunggu', 'Diproses', 'Selesai'];
+        const target = reports.find(r => r.id === id);
+        if (!target) return;
 
+        const nextIndex = (order.indexOf(target.status) + 1) % order.length;
+        target.status = order[nextIndex];
+        saveReports();
+        triggerIsland(`${id} → ${target.status}`);
+    };
 
-        // filter() menghapus laporan yang statusnya Selesai
-        laporan =
-            laporan.filter(
-                x => x.status !== "Selesai"
-            );
+    window.deleteReport = function(id) {
+        reports = reports.filter(r => r.id !== id);
+        saveReports();
+        showAlert(`🗑 Tiket ${id} telah dihapus dari sistem.`, 'warning');
+        triggerIsland(`Tiket ${id} Dihapus`);
+    };
 
-
-        if (sebelum === laporan.length) {
-
-            tampilNotif(
-                "Tidak ada laporan selesai.",
-                "warning"
-            );
-
+    // Export CSV
+    btnExportCSV.addEventListener('click', () => {
+        if (reports.length === 0) {
+            showAlert('Tidak ada data untuk diekspor.', 'warning');
             return;
         }
+        const headers = ['ID Tiket', 'Pelapor', 'Kategori', 'Lokasi', 'Urgensi', 'Judul', 'Status', 'Waktu'];
+        const rows = reports.map(r => [
+            r.id, `"${r.pelapor}"`, r.kategori, `"${r.lokasi}"`, r.urgensi, `"${r.judul}"`, r.status, `"${r.waktu}"`
+        ]);
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `E-Report-Rekap-${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
+        showAlert('📊 File CSV berhasil diunduh!', 'success');
+        triggerIsland('Ekspor CSV Berhasil');
+    });
 
-        simpanData();
+    // Print / Save PDF
+    btnPrintPDF.addEventListener('click', () => {
+        triggerIsland('Membuka Dialog Cetak / PDF...');
+        setTimeout(() => window.print(), 200);
+    });
 
-        renderData();
-
-        tampilNotif(
-            "Laporan selesai dibersihkan."
-        );
-    };
-
-
-/* =====================================================
-   SEARCH & FILTER
-===================================================== */
-
-$("searchBox").addEventListener(
-    "input",
-    renderData
-);
-
-$("statusFilter").addEventListener(
-    "change",
-    renderData
-);
-
-
-/* =====================================================
-   NAVIGASI
-===================================================== */
-
-$("btnNavHome").onclick =
-    function () {
-
-        $("pageHome")
-            .classList.add("active");
-
-        $("pageGuide")
-            .classList.remove("active");
-
-
-        $("btnNavHome")
-            .classList.add("active");
-
-        $("btnNavGuide")
-            .classList.remove("active");
-
-        tampilNotif("Beranda Aktif");
-    };
-
-
-$("btnNavGuide").onclick =
-    function () {
-
-        $("pageGuide")
-            .classList.add("active");
-
-        $("pageHome")
-            .classList.remove("active");
-
-
-        $("btnNavGuide")
-            .classList.add("active");
-
-        $("btnNavHome")
-            .classList.remove("active");
-
-        tampilNotif("Panduan Sistem Dibuka");
-    };
-
-
-/* =====================================================
-   DARK MODE
-===================================================== */
-
-// Fungsi untuk membaca tema yang tersimpan
-function setTheme() {
-
-    const darkMode =
-        localStorage.getItem(THEME_KEY)
-        === "dark";
-
-
-    // Menambahkan class dark ke body
-    document.body.classList.toggle(
-        "dark",
-        darkMode
-    );
-
-
-    const button =
-        $("btnDarkMode");
-
-
-    if (button) {
-
-        button.textContent =
-            darkMode ? "☀️" : "🌙";
-
-        button.title =
-            darkMode
-                ? "Mode Terang"
-                : "Dark Mode";
-    }
-}
-
-
-/* =====================================================
-   BUTTON DARK MODE
-===================================================== */
-
-const btnDarkMode =
-    $("btnDarkMode");
-
-
-if (btnDarkMode) {
-
-    btnDarkMode.addEventListener(
-        "click",
-        function () {
-
-            // Cek apakah mode sekarang dark
-            const isDark =
-                document.body.classList.toggle(
-                    "dark"
-                );
-
-
-            // Simpan pilihan pengguna
-            localStorage.setItem(
-                THEME_KEY,
-                isDark
-                    ? "dark"
-                    : "light"
-            );
-
-
-            // Ubah icon tombol
-            this.textContent =
-                isDark
-                    ? "☀️"
-                    : "🌙";
-
-
-            this.title =
-                isDark
-                    ? "Mode Terang"
-                    : "Dark Mode";
-
-
-            tampilNotif(
-                isDark
-                    ? "🌙 Dark Mode aktif"
-                    : "☀️ Mode terang aktif"
-            );
+    // Delete Last Ticket
+    btnDeleteLast.addEventListener('click', () => {
+        if (reports.length === 0) {
+            showAlert('Tidak ada tiket untuk dibatalkan.', 'warning');
+            return;
         }
-    );
-}
+        const removed = reports.shift();
+        saveReports();
+        showAlert(`↩ Tiket terbaru (${removed.id}) dibatalkan.`, 'warning');
+        triggerIsland(`Membatalkan ${removed.id}`);
+    });
 
+    // Clear Done Tickets
+    btnClearDone.addEventListener('click', () => {
+        const doneTotal = reports.filter(r => r.status === 'Selesai').length;
+        if (doneTotal === 0) {
+            showAlert('Tidak ada tiket berstatus Selesai.', 'warning');
+            return;
+        }
+        reports = reports.filter(r => r.status !== 'Selesai');
+        saveReports();
+        showAlert(`🧹 ${doneTotal} tiket selesai berhasil dibersihkan.`, 'success');
+        triggerIsland(`${doneTotal} Tiket Dibersihkan`);
+    });
 
-/* =====================================================
-   JALANKAN PROGRAM
-===================================================== */
+    searchBox.addEventListener('input', renderTable);
+    statusFilter.addEventListener('change', renderTable);
 
-// Terapkan tema yang tersimpan
-setTheme();
-
-// Tampilkan data saat halaman dibuka
-renderData();
+    // Initial Boot
+    saveReports();
+    refreshIcons();
+    initScrollReveal();
+});
